@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bagaimana Internet Bekerja - Edukasi Interaktif</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        nav {
+            background-color: #1e293b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            border-bottom: 1px solid #334155;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            padding: 1rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover, nav button.active {
+            color: #ffffff;
+            background-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-panel {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .section-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--text-heading);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--primary);
+            margin: 1.2rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Interactive Simulator Styles */
+        .interactive-box {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .interactive-box h3 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #ffffff;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button.action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button.action-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .sim-canvas {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            position: relative;
+            overflow: hidden;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .node {
+            background: #334155;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 0.8rem;
+            text-align: center;
+            width: 120px;
+            font-size: 0.85rem;
+            z-index: 2;
+        }
+
+        .packet {
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            transform: translateY(-50%);
+            display: none;
+            z-index: 3;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        /* Comparison Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--secondary);
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Quiz Call-to-Action */
+        .quiz-cta {
+            background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .quiz-cta h3 {
+            margin-top: 0;
+            color: var(--secondary);
+            font-size: 1.4rem;
+        }
+
+        .quiz-cta p {
+            max-width: 620px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        a.quiz-cta-btn {
+            display: inline-block;
+            text-decoration: none;
+            font-size: 1.05rem;
+            padding: 0.9rem 2.2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Bagaimana Internet Bekerja?</h1>
+        <p>Dari Perangkat Komputer Lokal Hingga Jaringan Serat Optik Bawah Laut Global</p>
+    </header>
+
+    <nav id="navbar">
+        <button class="nav-btn active" onclick="showTab('tab1')">1. Jaringan Lokal</button>
+        <button class="nav-btn" onclick="showTab('tab2')">2. IP & DNS</button>
+        <button class="nav-btn" onclick="showTab('tab3')">3. Pengiriman Paket</button>
+        <button class="nav-btn" onclick="showTab('tab4')">4. Klien & Server</button>
+        <button class="nav-btn" onclick="showTab('tab5')">5. Infrastruktur Global</button>
+        <button class="nav-btn" onclick="showTab('tab6')">6. Ringkasan & Evaluasi</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- TAB 1: JARINGAN LOKAL -->
+        <section id="tab1" class="section-panel active">
+            <h2>1. Landasan Jaringan Lokal & Perangkat Keras</h2>
+            <p>Setelah komputer Anda dirakit, diinstal OS, dan dilengkapi aplikasi, perangkat tersebut masih berdiri sendiri (<em>standalone</em>). Agar dapat terhubung ke dunia luar, komputer membutuhkan komponen hardware jaringan khusus.</p>
+
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-title">💻 NIC (Network Interface Card)</div>
+                    <p>Adapter Ethernet atau modul Wi-Fi yang mengonversi data digital komputer menjadi sinyal listrik atau gelombang radio.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔀 Switch</div>
+                    <p>Titik penghubung antarperangkat di dalam satu jaringan lokal (LAN). Mengarahkan data berdasarkan alamat fisik (MAC Address).</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🌐 Router</div>
+                    <p>Perangkat cerdas yang menentukan rute terbaik (<em>routing</em>) untuk meneruskan data keluar dari jaringan lokal menuju jaringan lain.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📡 Modem</div>
+                    <p>Mengubah sinyal digital dari router menjadi sinyal analog/cahaya agar dapat melintasi jaringan ISP (Internet Service Provider).</p>
+                </div>
+            </div>
+
+            <p><em>Catatan: Pada perangkat Wi-Fi rumahan modern, fungsi Switch, Router, dan Modem umumnya telah digabungkan menjadi satu perangkat terpadu.</em></p>
+        </section>
+
+        <!-- TAB 2: IP & DNS -->
+        <section id="tab2" class="section-panel">
+            <h2>2. Sistem Pengalamatan: MAC, IP Address, dan DNS</h2>
+            <p>Agar data tidak tersesat di antara miliaran komputer di dunia, internet menggunakan sistem identitas bertingkat.</p>
+
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-title">🏷️ Alamat MAC (Fisik)</div>
+                    <p>Identitas permanen dari pabrik (contoh: <code>00:1A:2B:3C:4D:5E</code>). Seperti sidik jari perangkat, hanya berlaku di jaringan lokal.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📍 Alamat IP (Logis)</div>
+                    <p>Alamat lokasi yang terstruktur (contoh: <code>142.250.190.78</code>). Bertindak seperti alamat rumah yang mempermudah pengiriman lintas jaringan.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📖 DNS (Domain Name System)</div>
+                    <p>Buku alamat internet yang menerjemahkan nama domain yang mudah diingat manusia menjadi Alamat IP numerik.</p>
+                </div>
+            </div>
+
+            <!-- SIMULATOR DNS -->
+            <div class="interactive-box">
+                <h3>🔍 Simulasi Interaktif: Coba Cari Alamat IP (DNS Lookup)</h3>
+                <p>Ketikkan nama domain di bawah ini untuk melihat bagaimana DNS menerjemahkan nama web menjadi Alamat IP:</p>
+                <div class="sim-controls">
+                    <input type="text" id="dnsInput" value="developer.mozilla.org">
+                    <button class="action-btn" onclick="runDNSSimulation()">Cari IP Address</button>
+                </div>
+                <div id="dnsResult" style="background: #1e293b; padding: 1rem; border-radius: 6px; font-family: monospace; color: #38bdf8;">
+                    Status: Siap melakukan pencarian DNS...
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: PENGIRIMAN PAKET -->
+        <section id="tab3" class="section-panel">
+            <h2>3. Dinamika Pengiriman Data & TCP/IP</h2>
+            <p>Data seperti gambar, video, atau halaman web tidak dikirim sekaligus dalam satu berkas utuh, melainkan dipecah menjadi potongan-potongan kecil yang disebut <strong>Paket Data</strong>.</p>
+
+            <h3>Analogi Pengiriman Pos Surat ✉️</h3>
+            <p>Bayangkan Anda ingin mengirim buku setebal 1.000 halaman melalui kotak pos yang sempit. Lembaran buku dilepas dan dimasukkan ke dalam 1.000 amplop terpisah. Di luar setiap amplop dituliskan alamat dan nomor halaman. Amplop bisa berjalan melalui rute armada yang berbeda. Saat sampai di tujuan, penerima menyusun kembali lembaran berdasarkan nomor halaman.</p>
+
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-title">📦 IP (Internet Protocol)</div>
+                    <p>Bertanggung jawab membungkus paket data dan memberikan alamat asal & tujuan agar router tahu ke mana paket dikirim.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🤝 TCP (Transmission Control Protocol)</div>
+                    <p>Mengatur penomoran paket, memastikan koneksi awal, dan meminta pengiriman ulang jika ada paket yang hilang di jalan.</p>
+                </div>
+            </div>
+
+            <!-- SIMULATOR PAKET -->
+            <div class="interactive-box">
+                <h3>🚀 Simulasi Pengiriman Paket Data Interaktif</h3>
+                <p>Klik tombol untuk mensimulasikan bagaimana pesan Anda dipecah menjadi paket dan dikirim melalui rute jaringan:</p>
+                <div class="sim-controls">
+                    <button class="action-btn" onclick="runPacketSimulation()">Kirim Paket Data</button>
+                </div>
+                <div class="sim-canvas">
+                    <div class="node">💻 Laptop Klien</div>
+                    <div class="node">🌐 Router & ISP</div>
+                    <div class="node">🖥️ Server Web</div>
+                    <div class="packet" id="dataPacket"></div>
+                </div>
+                <div id="packetStatus" style="margin-top: 1rem; font-family: monospace; color: #4ade80;">
+                    Status: Menunggu instruksi pengiriman...
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: KLIEN & SERVER -->
+        <section id="tab4" class="section-panel">
+            <h2>4. Arsitektur Klien-Server & Siklus Web</h2>
+            <p>Hampir seluruh aktivitas di internet memanfaatkan model **Klien-Server**.</p>
+            <ul>
+                <li><strong>Klien (Client):</strong> Perangkat dan peramban web (browser) yang Anda gunakan untuk meminta data.</li>
+                <li><strong>Server:</strong> Komputer berkinerja tinggi di pusat data (Data Center) yang menyimpan dan melayani permintaan berkas web.</li>
+            </ul>
+
+            <h3>Siklus Saat Membuka Situs Web:</h3>
+            <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Pengguna mengetikkan URL di browser (misal: <code>https://developer.mozilla.org</code>).</li>
+                <li>Browser melakukan pengecekan ke <strong>DNS Server</strong> untuk mendapatkan IP Server.</li>
+                <li>Browser membuka koneksi <strong>TCP</strong> dengan server tujuan.</li>
+                <li>Browser mengirim pesan permintaan <strong>HTTP / HTTPS (GET Request)</strong>.</li>
+                <li>Server memproses dan merespons dengan kode status (misal: <code>200 OK</code>) serta mengirimkan berkas HTML, CSS, & JS.</li>
+                <li>Browser menerjemahkan (*rendering*) berkas tersebut menjadi tampilan web visual yang Anda lihat.</li>
+            </ol>
+        </section>
+
+        <!-- TAB 5: INFRASTRUKTUR GLOBAL -->
+        <section id="tab5" class="section-panel">
+            <h2>5. Infrastruktur Fisik Global: Kabel Bawah Laut</h2>
+            <p>Banyak orang mengira internet bekerja utamanya menggunakan satelit luar angkasa. Secara faktual, <strong>lebih dari 95% hingga 99% lalu lintas data global ditransmisikan melalui kabel serat optik bawah laut!</strong></p>
+
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-title">🌊 Kabel Serat Optik Bawah Laut</div>
+                    <p>Kapasitas sangat tinggi (ratusan Terabit/detik), latensi sangat rendah, dan membawa sinyal berupa pulsa cahaya di dalam serat kaca setipis rambut.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🛰️ Satelit Komunikasi</div>
+                    <p>Hanya membawa &lt; 0.37% data dunia. Difokuskan untuk daerah terpencil, penerbangan, dan kondisi darurat karena latensinya lebih tinggi.</p>
+                </div>
+            </div>
+
+            <p>Di Indonesia, konektivitas internasional ditopang oleh sistem kabel bawah laut seperti <em>SEA-ME-WE</em>, <em>Asia Pacific Gateway (APG)</em>, serta dihubungkan antar-pulau melalui <em>Palapa Ring</em>.</p>
+        </section>
+
+        <!-- TAB 6: RINGKASAN & KUIS -->
+        <section id="tab6" class="section-panel">
+            <h2>6. Ringkasan & Evaluasi Pemahaman</h2>
+
+            <h3>Tabel Ringkasan Perbedaan Pengalamatan</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jenis Identitas</th>
+                        <th>Format Contoh</th>
+                        <th>Sifat & Fungsi</th>
+                        <th>Scope</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Alamat MAC</strong></td>
+                        <td><code>00:1A:2B:3C:4D:5E</code></td>
+                        <td>Permanen, identitas fisik perangkat keras</td>
+                        <td>Jaringan Lokal (LAN)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alamat IP</strong></td>
+                        <td><code>142.250.190.78</code></td>
+                        <td>Logis terstruktur, lokasi di dalam jaringan</td>
+                        <td>Jaringan Global / Router</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nama Domain</strong></td>
+                        <td><code>developer.mozilla.org</code></td>
+                        <td>Teks ramah manusia yang diubah DNS ke IP</td>
+                        <td>Tingkat Aplikasi / Browser</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+
+            <div class="quiz-cta">
+                <h3>🧠 Evaluasi Pemahaman Anda</h3>
+                <p>Anda telah mempelajari seluruh materi mengenai cara kerja internet, mulai dari jaringan lokal hingga infrastruktur global. Saatnya mengukur sejauh mana pemahaman Anda melalui kuis evaluasi.</p>
+                <a href="quiz.html" class="action-btn quiz-cta-btn">🚀 Lanjut ke Kuis Ujian &rarr;</a>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Materi Edukasi Interaktif: Arsitektur & Cara Kerja Internet | Dirancang untuk Pemula</p>
+    </footer>
+
+    <script>
+        // Tab Navigation Logic
+        function showTab(tabId) {
+            const panels = document.querySelectorAll('.section-panel');
+            const buttons = document.querySelectorAll('.nav-btn');
+
+            panels.forEach(panel => panel.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // DNS Simulator Logic
+        function runDNSSimulation() {
+            const domain = document.getElementById('dnsInput').value.trim();
+            const resultBox = document.getElementById('dnsResult');
+
+            if(!domain) {
+                resultBox.innerHTML = "Harap masukkan nama domain valid!";
+                return;
+            }
+
+            resultBox.innerHTML = `[1/3] Memeriksa tembolok (cache) peramban untuk '${domain}'...`;
+            
+            setTimeout(() => {
+                resultBox.innerHTML += `<br>[2/3] Cache tidak ditemukan. Menghubungi Server DNS...`;
+            }, 800);
+
+            setTimeout(() => {
+                // Generasi IP acak konsisten sederhana untuk demo
+                const ip = "142.250." + (domain.length * 7 % 255) + "." + (domain.length * 13 % 255);
+                resultBox.innerHTML += `<br>[3/3] ✅ Berhasil! DNS Menerjemahkan <strong>${domain}</strong> &#8594; <strong>${ip}</strong>`;
+            }, 1800);
+        }
+
+        // Packet Simulation Logic
+        function runPacketSimulation() {
+            const packet = document.getElementById('dataPacket');
+            const status = document.getElementById('packetStatus');
+            
+            packet.style.display = 'block';
+            packet.style.left = '10%';
+            status.innerHTML = "Memecah berkas data menjadi paket-paket kecil (TCP)...";
+
+            setTimeout(() => {
+                packet.style.left = '48%';
+                status.innerHTML = "Paket berjalan melalui Router Lokal menuju Jaringan ISP (IP Routing)...";
+            }, 1000);
+
+            setTimeout(() => {
+                packet.style.left = '85%';
+                status.innerHTML = "Paket tiba di Server Tujuan dan dirangkai kembali secara utuh!";
+            }, 2200);
+        }
+    </script>
+</body>
+</html>

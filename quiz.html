@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Ujian Online - Cara Kerja Internet</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+            --easy: #16a34a;
+            --medium: #d97706;
+            --hard: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--secondary);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button.btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button.btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Quiz Styles */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eff6ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-easy { background: var(--easy); }
+        .badge-medium { background: var(--medium); }
+        .badge-hard { background: var(--hard); }
+
+        .question-card {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-card:last-child {
+            border-bottom: none;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 0.8rem;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .option-label:hover {
+            background: #e2e8f0;
+        }
+
+        .option-label input {
+            margin-right: 0.8rem;
+        }
+
+        /* Report Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #f1f5f9;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--easy);
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- PAGE 1: FORM DATA DIRI -->
+    <div id="pageRegistrasi" class="card page active">
+        <a href="web-page.html" class="back-link">&larr; Kembali ke Materi Pembelajaran</a>
+        <h2>📝 Formulir Peserta Ujian</h2>
+        <p style="margin-bottom: 1.5rem; color: #64748b;">Silakan isi data diri Anda sebelum memulai kuis. Soal akan diacak secara otomatis oleh sistem.</p>
+        
+        <form id="formSiswa" onsubmit="mulaiKuis(event)">
+            <div class="form-group">
+                <label for="namaSiswa">Nama Lengkap:</label>
+                <input type="text" id="namaSiswa" required placeholder="Contoh: Budi Santoso">
+            </div>
+            <div class="form-group">
+                <label for="kelasSiswa">Kelas / NISN:</label>
+                <input type="text" id="kelasSiswa" required placeholder="Contoh: X-TKJ 1 / 12345678">
+            </div>
+            <div class="form-group">
+                <label for="sekolahSiswa">Nama Sekolah / Instansi:</label>
+                <input type="text" id="sekolahSiswa" required placeholder="Contoh: SMK Negeri 1 Jakarta">
+            </div>
+            
+            <div style="background: #fffbebf8; padding: 1rem; border-radius: 8px; border: 1px solid #fef08a; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                ⚠️ <strong>Peraturan Ujian:</strong>
+                <ul style="margin-left: 1.2rem; margin-top: 0.3rem;">
+                    <li>Soal terdiri dari 7 nomor (3 Mudah, 2 Sedang, 2 Sulit).</li>
+                    <li>Sistem mendeteksi aktivitas <strong>perpindahan tab / minimize jendela</strong> secara otomatis.</li>
+                    <li>Seluruh riwayat perpindahan tab akan dicatat dan masuk ke dalam rekapitulasi nilai akhir.</li>
+                </ul>
+            </div>
+
+            <button type="submit" class="btn">Mulai Ujian Sekarang</button>
+        </form>
+    </div>
+
+    <!-- PAGE 2: SOAL KUIS -->
+    <div id="pageKuis" class="card page">
+        <div class="quiz-header">
+            <div>
+                <strong id="displayNamaSiswa">-</strong>
+                <div style="font-size: 0.85rem; color: #64748b;" id="displayKelasSiswa">-</div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.85rem; color: #64748b;">Deteksi Switch Tab:</span>
+                <div id="displaySwitchCount" style="font-weight: bold; color: var(--hard);">0 Kali</div>
+            </div>
+        </div>
+
+        <form id="formKuis" onsubmit="selesaiKuis(event)">
+            <div id="containerSoal">
+                <!-- Soal di-generate via JavaScript -->
+            </div>
+            <button type="submit" class="btn" style="background: var(--easy);">Selesaikan & Kumpulkan Jawaban</button>
+        </form>
+    </div>
+
+    <!-- PAGE 3: LAPORAN REKAPITULASI HASIL -->
+    <div id="pageHasil" class="card page">
+        <h2>📊 Laporan Rekapitulasi Hasil Ujian</h2>
+        
+        <div id="rekapIdentitas" style="margin-bottom: 1rem; font-size: 0.95rem;"></div>
+
+        <div class="score-display">
+            <div>NILAI AKHIR ANDA</div>
+            <div class="score-number" id="displaySkorAkhir">0</div>
+            <div style="font-size: 0.85rem; color: #64748b;">Dari Total Maksimal 100 Poin</div>
+        </div>
+
+        <h3>Rincian Jawaban Soal</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tingkat</th>
+                    <th>Status</th>
+                    <th>Bobot Poin</th>
+                </tr>
+            </thead>
+            <tbody id="tabelRincianSoal"></tbody>
+        </table>
+
+        <h3 style="margin-top: 1.5rem;">Laporan Aktivitas Switch Tab</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">Rekam jejak waktu ketika siswa berpindah tab/membuka jendela lain saat ujian berlangsung:</p>
+        
+        <div id="boxLogSwitch">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Waktu Kejadian (Timestamp)</th>
+                        <th>Aktivitas Terdeteksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelLogSwitch"></tbody>
+            </table>
+        </div>
+
+        <button class="btn" style="margin-top: 1.5rem; background: var(--secondary);" onclick="window.location.reload()">Ulangi Ujian</button>
+        <a href="web-page.html" class="back-link" style="display: block; text-align: center; margin-top: 1.25rem;">&larr; Kembali ke Materi Pembelajaran</a>
+    </div>
+
+</div>
+
+<script>
+    // DATABASE 30 SOAL
+    const databaseSoal = {
+        mudah: [ // Bobot 10 Poin (Target: 3 Soal)
+            { id: "m1", q: "Apa kepanjangan dari protokol IP dalam jaringan komputer?", a: ["Internet Protocol", "Internal Process", "Information Page", "International Packet"], c: 0 },
+            { id: "m2", q: "Fungsi utama dari Domain Name System (DNS) adalah...", a: ["Mengubah sinyal analog menjadi digital", "Menerjemahkan nama domain teks menjadi Alamat IP", "Menyambungkan kabel jaringan ke komputer", "Menyimpan file video website"], c: 1 },
+            { id: "m3", q: "Alamat fisik unik yang ditanamkan pada kartu jaringan (NIC) oleh pabrik disebut...", a: ["IP Address", "MAC Address", "URL", "Port Number"], c: 1 },
+            { id: "m4", q: "Aplikasi pada komputer pengguna yang berfungsi untuk membuka halaman web disebut...", a: ["Web Server", "Web Browser", "DNS Server", "Router Interface"], c: 1 },
+            { id: "m5", q: "Perangkat keras jaringan yang berfungsi menyambungkan jaringan lokal ke ISP melalui saluran kabel/telepon adalah...", a: ["Modem", "Switch", "Hub", "Repeater"], c: 0 },
+            { id: "m6", q: "Format contoh Alamat IP versi 4 (IPv4) yang tepat di bawah ini adalah...", a: ["00:1A:2B:3C:4D:5E", "142.250.190.78", "https://google.com", "255.255.0.0.1.2"], c: 1 },
+            { id: "m7", q: "Protokol versi aman dari HTTP yang menggunakan enkripsi data adalah...", a: ["FTP", "SMTP", "HTTPS", "DHCP"], c: 2 },
+            { id: "m8", q: "Model interaksi di mana browser meminta halaman web dan server menyediakannya disebut...", a: ["Peer-to-Peer", "Client-Server", "Standalone", "Local Network"], c: 1 },
+            { id: "m9", q: "Potongan-potongan data kecil yang dipecah sebelum dikirimkan melalui internet disebut...", a: ["Paket Data", "Sinyal Analog", "Bit Fiber", "Modem Link"], c: 0 },
+            { id: "m10", q: "Komputer berkinerja tinggi yang beroperasi terus menerus untuk menyimpan berkas web disebut...", a: ["Client", "Server", "Switch", "Router"], c: 1 }
+        ],
+        sedang: [ // Bobot 15 Poin (Target: 2 Soal)
+            { id: "s1", q: "Perangkat jaringan yang bertugas menentukan rute terbaik (routing) untuk meneruskan data antar-jaringan berbeda adalah...", a: ["Switch", "Router", "NIC", "Hub"], c: 1 },
+            { id: "s2", q: "Mengapa Alamat MAC tidak dapat digunakan secara efisien untuk proses pengiriman data global internet?", a: ["Karena harganya mahal", "Karena tidak memiliki struktur hierarki geografis", "Karena ukurannya terlalu kecil", "Karena cepat berubah-ubah"], c: 1 },
+            { id: "s3", q: "Prosedur 'Three-Way Handshake' pada protokol TCP dilakukan dengan tujuan...", a: ["Menerjemahkan nama domain", "Menjalin koneksi awal yang andal sebelum pengiriman data", "Memutus koneksi secara otomatis", "Mengompres ukuran gambar"], c: 1 },
+            { id: "s4", q: "Bagian dari paket data yang berisi informasi kontrol seperti Alamat IP pengirim, tujuan, dan nomor urut adalah...", a: ["Payload", "Header", "Cladding", "Footer"], c: 1 },
+            { id: "s5", q: "Fasilitas darat tempat kabel serat optik bawah laut terhubung dengan jaringan serat optik darat disebut...", a: ["Landing Station", "Base Station", "Router Center", "Data Center"], c: 0 },
+            { id: "s6", q: "Proyek infrastruktur serat optik nasional Indonesia yang menghubungkan jaringan digital dari Sabang sampai Merauke adalah...", a: ["Palapa Ring", "Garuda Net", "Nusa Fiber", "Indo Kabel"], c: 0 },
+            { id: "s7", q: "Kode status HTTP '200 OK' dari server web menandakan bahwa...", a: ["Halaman tidak ditemukan", "Permintaan berhasil diproses oleh server", "Akses ditolak", "Server mengalami error internal"], c: 1 },
+            { id: "s8", q: "Pada URL 'https://developer.mozilla.org', bagian 'developer' bertindak sebagai...", a: ["Top Level Domain", "Subdomain", "Protocol", "Path"], c: 1 },
+            { id: "s9", q: "Dalam analogi pengiriman pos surat, peran nomor urut paket TCP sama halnya dengan...", a: ["Alamat pengirim", "Nomor halaman buku yang dilepas ke amplop", "Stempel pos", "Kotak surat tempat tujuan"], c: 1 },
+            { id: "s10", q: "Apa fungsi utama dari protokol IP dalam stack protokol TCP/IP?", a: ["Menjamin keutuhan berkas", "Memberikan alamat lokasi & membungkus paket data", "Menampilkan gambar visual", "Memeriksa ejaan teks"], c: 1 }
+        ],
+        sulit: [ // Bobot 20 Poin (Target: 2 Soal)
+            { id: "h1", q: "Berapakah persentase perkiraan lalu lintas data internet antar-benua global yang dibawa oleh kabel serat optik bawah laut?", a: ["Sekitar 10%-20%", "Sekitar 40%-50%", "Lebih dari 95%-99%", "100% Sepenuhnya"], c: 2 },
+            { id: "h2", q: "Bagaimana protokol TCP menangani kondisi di mana salah satu paket data hilang atau rusak saat perjalanan di internet?", a: ["Menghentikan seluruh kuis", "Meminta pengirim untuk mengirimkan ulang paket yang hilang", "Mengabaikan paket tersebut dan melanjutkan", "Mengubah IP address tujuan"], c: 1 },
+            { id: "h3", q: "Mengapa penggunaan satelit komunikasi TIDAK dijadikan tulang punggung utama internet global dibandingkan serat optik?", a: ["Satelit tidak bisa memancarkan sinyal", "Satelit memiliki keterbatasan kapasitas gelombang dan latensi tinggi", "Satelit hanya bisa digunakan saat malam hari", "Biaya internet satelit gratis"], c: 1 },
+            { id: "h4", q: "Komponen pada struktur kabel serat optik bawah laut yang berfungsi memantulkan pulsa cahaya agar tetap merambat di dalam inti kaca adalah...", a: ["Steel Armor", "Cladding", "Copper Conductor", "Polyethylene Jacket"], c: 1 },
+            { id: "h5", q: "Perangkat amplifier yang dipasang pada interval jarak tertentu di tengah samudra untuk menguatkan sinyal cahaya kabel bawah laut adalah...", a: ["Switch", "Repeater", "Modem", "Landing Node"], c: 1 },
+            { id: "h6", q: "Apa dampak teknis yang terjadi jika seluruh jaringan komputer dunia hanya mengandalkan Alamat MAC tanpa Alamat IP?", a: ["Kecepatan internet menjadi cepat", "Switch harus menyimpan miliaran alamat yang menyebabkan kemacetan total", "Komputer tidak membutuhkan listrik", "Domain DNS tidak bisa dibeli"], c: 1 },
+            { id: "h7", q: "Pesan permintaan standar HTTP yang dikirimkan oleh peramban web untuk meminta berkas halaman utama dari server adalah...", a: ["POST /send", "GET /", "UPDATE /html", "CONNECT /dns"], c: 1 },
+            { id: "h8", q: "Di dalam struktur kabel serat optik bawah laut, aliran listrik bertegangan tinggi disalurkan melalui konduktor tembaga untuk fungsi...", a: ["Memanaskan air laut", "Memberikan daya listrik ke perangkat repeater di dasar laut", "Menakuti hewan laut", "Membuat cahaya lebih terang"], c: 1 }
+        ]
+    };
+
+    // Global State
+    let dataSiswa = {};
+    let soalTerpilih = [];
+    let tabSwitchLogs = [];
+    let isKuisAktif = false;
+
+    // Fungsi Pengacak Array (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Fungsi Mulai Kuis
+    function mulaiKuis(e) {
+        e.preventDefault();
+        
+        // 1. Simpan Data Diri
+        dataSiswa = {
+            nama: document.getElementById('namaSiswa').value,
+            kelas: document.getElementById('kelasSiswa').value,
+            sekolah: document.getElementById('sekolahSiswa').value,
+            waktuMulai: new Date()
+        };
+
+        // Render info siswa di header
+        document.getElementById('displayNamaSiswa').innerText = dataSiswa.nama;
+        document.getElementById('displayKelasSiswa').innerText = `${dataSiswa.kelas} - ${dataSiswa.sekolah}`;
+
+        // 2. Acak Soal (3 Mudah, 2 Sedang, 2 Sulit)
+        const randMudah = shuffleArray(databaseSoal.mudah).slice(0, 3).map(s => ({ ...s, level: 'Mudah', bobot: 10 }));
+        const randSedang = shuffleArray(databaseSoal.sedang).slice(0, 2).map(s => ({ ...s, level: 'Sedang', bobot: 15 }));
+        const randSulit = shuffleArray(databaseSoal.sulit).slice(0, 2).map(s => ({ ...s, level: 'Sulit', bobot: 20 }));
+
+        soalTerpilih = shuffleArray([...randMudah, ...randSedang, ...randSulit]);
+
+        // 3. Render Soal ke HTML
+        const container = document.getElementById('containerSoal');
+        container.innerHTML = '';
+
+        soalTerpilih.forEach((soal, idx) => {
+            let badgeClass = soal.level === 'Mudah' ? 'badge-easy' : (soal.level === 'Sedang' ? 'badge-medium' : 'badge-hard');
+            
+            let qHtml = `
+                <div class="question-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span class="badge ${badgeClass}">Tingkat: ${soal.level} (${soal.bobot} Poin)</span>
+                        <span style="font-size: 0.85rem; color: #64748b;">Soal No. ${idx + 1} dari 7</span>
+                    </div>
+                    <div class="question-text">${soal.q}</div>
+                    <div class="options-group">
+            `;
+
+            soal.a.forEach((opt, optIdx) => {
+                qHtml += `
+                    <label class="option-label">
+                        <input type="radio" name="soal_${idx}" value="${optIdx}" required>
+                        ${opt}
+                    </label>
+                `;
+            });
+
+            qHtml += `</div></div>`;
+            container.innerHTML += qHtml;
+        });
+
+        // 4. Pindah Tampilan Page
+        document.getElementById('pageRegistrasi').classList.remove('active');
+        document.getElementById('pageKuis').classList.add('active');
+
+        // 5. Aktifkan Detektor Switch Tab
+        isKuisAktif = true;
+    }
+
+    // Deteksi Switch Tab / Minimize
+    document.addEventListener('visibilitychange', function() {
+        if (isKuisAktif && document.hidden) {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('id-ID');
+            
+            tabSwitchLogs.push({
+                waktu: timestamp,
+                detail: "Siswa berpindah tab / meninggalkan jendela kuis"
+            });
+
+            // Update Counter
+            document.getElementById('displaySwitchCount').innerText = `${tabSwitchLogs.length} Kali`;
+        }
+    });
+
+    // Selesai Kuis & Hitung Hasil
+    function selesaiKuis(e) {
+        e.preventDefault();
+        isKuisAktif = false; // Matikan detektor
+
+        let totalSkor = 0;
+        let rincianJawaban = [];
+
+        soalTerpilih.forEach((soal, idx) => {
+            const selectedOpt = document.querySelector(`input[name="soal_${idx}"]:checked`);
+            const jawabanSiswa = selectedOpt ? parseInt(selectedOpt.value) : -1;
+            const isBenar = jawabanSiswa === soal.c;
+
+            if (isBenar) {
+                totalSkor += soal.bobot;
+            }
+
+            rincianJawaban.push({
+                no: idx + 1,
+                level: soal.level,
+                status: isBenar ? "BENAR ✅" : "SALAH ❌",
+                poin: isBenar ? soal.bobot : 0,
+                bobotMaks: soal.bobot
+            });
+        });
+
+        // Render Hasil Rekapitulasi
+        document.getElementById('displaySkorAkhir').innerText = totalSkor;
+        
+        document.getElementById('rekapIdentitas').innerHTML = `
+            <strong>Nama Siswa:</strong> ${dataSiswa.nama}<br>
+            <strong>Kelas/NISN:</strong> ${dataSiswa.kelas}<br>
+            <strong>Instansi:</strong> ${dataSiswa.sekolah}<br>
+            <strong>Waktu Selesai:</strong> ${new Date().toLocaleString('id-ID')}
+        `;
+
+        // Render Tabel Rincian Soal
+        const tbodySoal = document.getElementById('tabelRincianSoal');
+        tbodySoal.innerHTML = '';
+        rincianJawaban.forEach(r => {
+            tbodySoal.innerHTML += `
+                <tr>
+                    <td>${r.no}</td>
+                    <td>${r.level}</td>
+                    <td style="font-weight: bold; color: ${r.status.includes('BENAR') ? 'var(--easy)' : 'var(--hard)'};">${r.status}</td>
+                    <td>${r.poin} / ${r.bobotMaks} Poin</td>
+                </tr>
+            `;
+        });
+
+        // Render Tabel Log Switch Tab
+        const tbodyLog = document.getElementById('tabelLogSwitch');
+        tbodyLog.innerHTML = '';
+        if (tabSwitchLogs.length === 0) {
+            tbodyLog.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--easy); font-weight: bold;">Sangat Baik! Tidak terdeteksi aktivitas berpindah tab selama ujian.</td></tr>`;
+        } else {
+            tabSwitchLogs.forEach((log, i) => {
+                tbodyLog.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${log.waktu}</td>
+                        <td style="color: var(--hard);">${log.detail}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Pindah ke Halaman Hasil
+        document.getElementById('pageKuis').classList.remove('active');
+        document.getElementById('pageHasil').classList.add('active');
+    }
+</script>
+
+</body>
+</html>
